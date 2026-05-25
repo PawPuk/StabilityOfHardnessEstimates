@@ -71,21 +71,17 @@ dataset_configs = {
         'momentum': 0.9,
         'weight_decay': 0.0005,
         'lr_decay_milestones': [60, 120, 160],
+        'crop_size': 32,
 
         # Dataset information
         'num_classes': 10,
         'mean': (0.4914, 0.4822, 0.4465),
         'std': (0.2023, 0.1994, 0.2010),
         'num_training_samples': [5000 for _ in range(10)],
-        'num_test_samples': [1000 for _ in range(10)],
-        'class_names': ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'],
 
         # Experimental robustness parameters
         'num_datasets': 4,              # number of dataset variants
         'num_models_per_dataset': 4,    # number of models trained on each dataset variant
-
-        # Hardness estimation
-        'num_models_for_hardness': 10,   # ensemble size used to compute hardness in train_baseline_models.py
 
         # Other
         'save_epoch': 20,
@@ -99,32 +95,41 @@ dataset_configs = {
         'momentum': 0.9,
         'weight_decay': 0.0005,
         'lr_decay_milestones': [60, 120, 160],
+        'crop_size': 32,
 
         # Dataset information
         'num_classes': 100,
         'mean': (0.5071, 0.4867, 0.4408),
         'std': (0.2675, 0.2565, 0.2761),
         'num_training_samples': [500 for _ in range(100)],
-        'num_test_samples': [100 for _ in range(100)],
-        'class_names': [
-            'apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 'beetle', 'bicycle', 'bottle',
-            'bowl', 'boy', 'bridge', 'bus', 'butterfly', 'camel', 'can', 'castle', 'caterpillar', 'cattle',
-            'chair', 'chimpanzee', 'clock', 'cloud', 'cockroach', 'couch', 'crab', 'crocodile', 'cup', 'dinosaur',
-            'dolphin', 'elephant', 'flatfish', 'forest', 'fox', 'girl', 'hamster', 'house', 'kangaroo', 'keyboard',
-            'lamp', 'lawn_mower', 'leopard', 'lion', 'lizard', 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain',
-            'mouse', 'mushroom', 'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck',
-            'pine_tree', 'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 'ray', 'road', 'rocket',
-            'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 'skyscraper', 'snail', 'snake', 'spider', 'squirrel',
-            'streetcar', 'sunflower', 'sweet_pepper', 'table', 'tank', 'telephone', 'television', 'tiger', 'tractor',
-            'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale', 'willow_tree', 'wolf', 'woman', 'worm'],
-
 
         # Experimental robustness parameters
         'num_datasets': 4,              # number of dataset variants
         'num_models_per_dataset': 4,    # number of models trained on each dataset variant
 
-        # Hardness estimation
-        'num_models_for_hardness': 10,  # ensemble size used to compute hardness in train_baseline_models.py
+        # Other
+        'save_epoch': 20,
+        'save_dir': os.path.join(ROOT, 'Models/')
+    },
+    'TinyImageNet': {
+        # Training hyperparameters
+        'batch_size': 128,
+        'num_epochs': 200,
+        'lr': 0.1,
+        'momentum': 0.9,
+        'weight_decay': 0.0005,
+        'lr_decay_milestones': [60, 120, 160],
+        'crop_size': 64,
+
+        # Dataset information
+        'num_classes': 200,
+        'mean': (0.4802, 0.4481, 0.3975),
+        'std': (0.2302, 0.2265, 0.2262),
+        'num_training_samples': [500 for _ in range(200)],
+
+        # Experimental robustness parameters
+        'num_datasets': 2,              # number of dataset variants
+        'num_models_per_dataset': 2,    # number of models trained on each dataset variant
 
         # Other
         'save_epoch': 20,

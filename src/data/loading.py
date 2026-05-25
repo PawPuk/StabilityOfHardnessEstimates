@@ -10,18 +10,18 @@ import torchvision
 import torchvision.transforms as transforms
 
 from src.config.config import get_config, ROOT
-from src.data.datasets import IndexedDataset
+from src.data.datasets import IndexedDataset, TinyImageNet
 
 
 def get_transform(
         apply_augmentation: bool,
-        config: Dict[Any]
+        config: Dict[str, Any]
 ) -> transforms.Compose:
     """For getting the transformation to the training and test sets."""
     if apply_augmentation:
         train_transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            transforms.RandomCrop(32, padding=4),
+            transforms.RandomCrop(config['crop_size'], padding=4),
             transforms.ToTensor(),
             transforms.Normalize(config['mean'], config['std']),
         ])
@@ -53,9 +53,9 @@ def load_dataset(
         shuffle: bool,
         apply_augmentation: bool
 ) -> Tuple[DataLoader[IndexedDataset], IndexedDataset]:
-    """Load the dataset giving control over shuffling and augmentation. Currently only supports CIFAR10 and CIFAR100.
+    """Load the dataset giving control over shuffling and augmentation.
 
-    :param dataset_name: Name of the dataset to load (only accepts `CIFAR10` and `CIFAR100`).
+    :param dataset_name: Name of the dataset to load.
     :param shuffle: Raise this flag to shuffle the training dataset.
     :param apply_augmentation: Raise this flag to apply data augmentation to the training set.
 
@@ -67,12 +67,13 @@ def load_dataset(
     if dataset_name == 'CIFAR10':
         training_set = torchvision.datasets.CIFAR10(root=os.path.join(ROOT, 'data'), download=True,
                                                     transform=train_transform)
-    else:
+    elif dataset_name == 'CIFAR100':
         training_set = torchvision.datasets.CIFAR100(root=os.path.join(ROOT, 'data'), download=True,
                                                      transform=train_transform)
+    else:
+        training_set = TinyImageNet(root=os.path.join(ROOT, 'data'), download=True, transform=train_transform)
 
     training_set = IndexedDataset(training_set, apply_augmentation)
-
     training_loader = get_dataloader(training_set, config['batch_size'], shuffle)
 
     return training_loader, training_set
