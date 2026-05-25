@@ -76,7 +76,7 @@ dataset_configs = {
         # Dataset information
         'num_classes': 10,
         'mean': (0.4914, 0.4822, 0.4465),
-        'std': (0.2023, 0.1994, 0.2010),
+        'std': (0.247, 0.2435, 0.2616),
         'num_training_samples': [5000 for _ in range(10)],
 
         # Experimental robustness parameters
@@ -99,8 +99,8 @@ dataset_configs = {
 
         # Dataset information
         'num_classes': 100,
-        'mean': (0.5071, 0.4867, 0.4408),
-        'std': (0.2675, 0.2565, 0.2761),
+        'mean': (0.5071, 0.4865, 0.4409),
+        'std': (0.2673, 0.2564, 0.2762),
         'num_training_samples': [500 for _ in range(100)],
 
         # Experimental robustness parameters
@@ -124,7 +124,7 @@ dataset_configs = {
         # Dataset information
         'num_classes': 200,
         'mean': (0.4802, 0.4481, 0.3975),
-        'std': (0.2302, 0.2265, 0.2262),
+        'std': (0.2764, 0.2689, 0.2816),
         'num_training_samples': [500 for _ in range(200)],
 
         # Experimental robustness parameters
