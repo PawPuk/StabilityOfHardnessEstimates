@@ -77,3 +77,4 @@ def load_dataset(
     training_loader = get_dataloader(training_set, config['batch_size'], shuffle)
 
     return training_loader, training_set
+    # TODO: Make this output test loader and test set
