@@ -5,13 +5,12 @@ import random
 from typing import Any, Dict, Tuple
 
 import numpy as np
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import torchvision
 import torchvision.transforms as transforms
 
 from src.config.config import get_config, ROOT
 from src.data.datasets import IndexedDataset, TinyImageNet
-from src.utils.reproducibility import set_reproducibility
 
 
 def get_transform(
@@ -34,6 +33,40 @@ def get_transform(
     return transform
 
 
+def inject_label_noise(
+        dataset: Dataset,
+        noise_ratio: float,
+        num_classes: int
+) -> Dataset:
+    """
+    Inject label noise by randomly flipping a fraction of labels.
+
+    Args:
+        dataset: PyTorch dataset with .targets attribute (list of labels)
+        noise_ratio: Fraction of labels to corrupt (e.g., 0.1 = 10% noise)
+        num_classes: Number of classes in the dataset
+
+    Returns:
+        Dataset with corrupted labels (modifies in-place)
+    """
+    targets = dataset.targets
+    num_samples = len(targets)
+    num_noisy = int(num_samples * noise_ratio)
+    noisy_indices = np.random.choice(num_samples, num_noisy, replace=False)
+
+    for idx in noisy_indices:
+        current_label = targets[idx]
+        # Choose a different random class (not the current one)
+        possible_labels = list(range(num_classes))
+        possible_labels.remove(current_label)
+        new_label = np.random.choice(possible_labels)
+        targets[idx] = new_label
+
+    dataset.targets = targets
+
+    return dataset
+
+
 def worker_init_fn(worker_id):
     """Set the seed for workers"""
     np.random.seed(42 + worker_id)
@@ -51,6 +84,7 @@ def get_dataloader(
 
 def load_training_dataset(
         dataset_name: str,
+        label_noise_ratio: float,
         shuffle: bool,
         apply_augmentation: bool
 ) -> Tuple[DataLoader[IndexedDataset], IndexedDataset]:
@@ -59,10 +93,10 @@ def load_training_dataset(
     :param dataset_name: Name of the dataset to load.
     :param shuffle: Raise this flag to shuffle the training dataset.
     :param apply_augmentation: Raise this flag to apply data augmentation to the training set.
+    :param label_noise_ratio: Fraction of labels to corrupt (e.g., 0.1 = 10% noise).
 
-    :return: Tuple containing DataLoader for the training set, training set, DataLoader for the test set, and test set.
+    :return: Tuple containing DataLoader for the training set, and the training set.
     """
-    set_reproducibility()  # For noise injection
     config = get_config(dataset_name)
 
     transform = get_transform(apply_augmentation, config)
@@ -74,6 +108,9 @@ def load_training_dataset(
                                                      transform=transform)
     else:
         training_set = TinyImageNet(root=os.path.join(ROOT, 'data'), download=True, transform=transform)
+
+    if label_noise_ratio > 0:
+        training_set = inject_label_noise(training_set, label_noise_ratio, config['num_classes'])
 
     training_set = IndexedDataset(training_set, apply_augmentation)
     training_loader = get_dataloader(training_set, config['batch_size'], shuffle)
@@ -92,7 +129,7 @@ def load_holdout_dataset(
     :param shuffle: Raise this flag to shuffle the training dataset.
     :param apply_augmentation: Raise this flag to apply data augmentation to the training set.
 
-    :return: Tuple containing DataLoader for the training set, training set, DataLoader for the test set, and test set.
+    :return: Tuple containing DataLoader for the holdout set, and the holdout set.
     """
     config = get_config(dataset_name)
 
