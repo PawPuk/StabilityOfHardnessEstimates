@@ -21,9 +21,9 @@ class ModelTrainer:
             self,
             training_set_size: int,
             training_loaders: List[DataLoader],
-            test_loader: DataLoader,
+            holdout_loader: DataLoader,
             dataset_name: str,
-            pruning_type: str = 'none',
+            noise_ratio: int,
             resnet_depth: int = 18
     ):
         """
@@ -32,16 +32,15 @@ class ModelTrainer:
         :param training_set_size: Specified the size of the training set. This is only useful for experiment1.py.
         :param training_loaders: List of DataLoaders for the training datasets. For experiment1.py where only one
         dataset is used pass the DataLoader in a List.
-        :param test_loader: Holdout set used to compute SSFT.
+        :param holdout_loader: Holdout set used to compute SSFT.
         :param dataset_name: The name of the dataset being used.
-        :param pruning_type: Type of pruning being applied (default: 'none'). This is used in experiment2.py and
-        experiment3.py to ensure unique saving directories.
+        :param noise_ratio: Percentage of the label noise injected into training_loaders
         :param resnet_depth: Specifies the depth of the ResNet used for hardness estimation. We use 20 as default.
         """
         self.training_set_size = training_set_size
         self.training_loaders = training_loaders
-        self.test_loader = test_loader
-        self.pruning_type = pruning_type
+        self.holdout_loader = holdout_loader
+        self.noise_ratio = noise_ratio
         self.dataset_name = dataset_name
         self.resnet_depth = resnet_depth
 
@@ -51,7 +50,7 @@ class ModelTrainer:
         self.num_models_to_train_per_dataset = self.config['num_models_per_dataset']
         self.dataset_count = self.config['num_datasets']
 
-        self.save_dir = os.path.join(self.config['save_dir'], pruning_type, dataset_name)
+        self.save_dir = os.path.join(self.config['save_dir'], f'{noise_ratio}_{dataset_name}')
         os.makedirs(self.save_dir, exist_ok=True)
 
     def train_model(
@@ -122,6 +121,6 @@ class ModelTrainer:
                 hardness_estimates = {(dataset_id, model_id): {}}
                 model = self.train_model(dataset_id, model_id, hardness_estimates)
                 second_split_forgetting_computation(model, self.config, self.training_loaders[dataset_id],
-                                                    self.test_loader, hardness_estimates, (dataset_id, model_id),
+                                                    self.holdout_loader, hardness_estimates, (dataset_id, model_id),
                                                     self.training_set_size)
                 save_results(hardness_estimates, (dataset_id, model_id), self.dataset_name)

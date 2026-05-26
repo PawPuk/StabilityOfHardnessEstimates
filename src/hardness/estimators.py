@@ -81,8 +81,8 @@ def second_split_forgetting_computation(
         model: ResNetLowRes,
         config: Dict[str, Any],
         train_loader: DataLoader,
-        test_loader: DataLoader,
-        hardness_estimates: Dict[Tuple[int, int], Dict[str, Union[int, Dict[List[List[float]]]]]],
+        holdout_loader: DataLoader,
+        hardness_estimates: Dict[Tuple[int, int], Dict[str, Union[int, List[List[float]]]]],
         dataset_model_id: Tuple[int, int],
         training_set_size: int
 ):
@@ -101,7 +101,7 @@ def second_split_forgetting_computation(
         model.train()
         epoch_perfect = True
 
-        for inputs, labels, _ in test_loader:
+        for inputs, labels, _ in holdout_loader:
             inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
             optimizer.zero_grad()
             outputs = model(inputs)
